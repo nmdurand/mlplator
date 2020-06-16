@@ -25,10 +25,10 @@ getDictionary = (wordList)->
 ((string)->
 	wordList = await getWordList()
 	dictionary = await getDictionary wordList
-	console.log 'Dictionary object is populated.'
+	console.log 'Dictionary object populated.'
 
 	sortedWord = sortLetters string
 
 	result = dictionary[sortedWord]
-	console.log '>>> Result:', result
-) 'permanente'
+	console.log '>>>', result.length,'Mots trouvés :', result
+) 'nrevrolaeutinoi'
