@@ -1,128 +1,37 @@
-fs = require 'fs'
+fs = require('fs').promises
 _ = require 'lodash'
 stringUtils = require './string'
 
 wordListPath = require 'french-wordlist'
-CHUNK_SIZE = 1000
 
-getNormalizedLetterArray  = (string)->
-	normalizedString = stringUtils.normalize string
-	normalizedString.split ''
+sortLetters = (word)->
+	normalizedWord = stringUtils.normalize(word)
+	_.sortBy(normalizedWord).join()
 
-getWordArray = ->
-	new Promise (resolve, reject)->
-		fs.readFile wordListPath, 'utf8', (err,data)->
-			if err
-				reject err
-			else
-				resolve data.split '\n'
+getWordList = ->
+	data = await fs.readFile wordListPath, 'utf8'
+	data.split '\n'
 
-getDictionaryObject = (wordArray)->
+getDictionary = (wordList)->
 	dictionary = {}
 	dictionaryPromise = Promise.resolve()
-	_.forEach wordArray, (word)->
+	_.forEach wordList, (word)->
 		dictionaryPromise = dictionaryPromise.then ->
-			normalizedWord = stringUtils.normalize word
-			dictionary[normalizedWord] = word
+			sortedWord = sortLetters word
+			if dictionary[sortedWord]?
+				dictionary[sortedWord].push word
+			else
+				dictionary[sortedWord] = [word]
 			dictionary
 	dictionaryPromise
 
-
-getAllCombinations = (array)->
-	new Promise (resolve, reject)->
-		if array.length is 1
-			resolve array
-		else
-			result = []
-			usedLetters = []
-			resultPromise = Promise.resolve()
-			_.forEach array, (letter, i)->
-				unless usedLetters.includes letter
-					usedLetters.push letter # Avoid duplicates
-					resultPromise = resultPromise.then ->
-						tempArray = _.cloneDeep array
-						tempArray.splice(i, 1)
-						subCombinations = await getAllCombinations(tempArray)
-						result.push _.map(subCombinations, (result)-> _.concat letter, result)...
-			resultPromise = resultPromise.then ->
-				resolve result
-
-# getAllCombinationsSync = (array)->
-# 	new Promise (resolve, reject)->
-# 		if array.length is 1
-# 			resolve array
-# 		else
-# 			result = []
-# 			usedLetters = []
-# 			resultPromise = Promise.resolve()
-# 			_.forEach array, (letter, i)->
-# 				unless usedLetters.includes letter
-# 					usedLetters.push letter # Avoid duplicates
-# 					resultPromise = resultPromise.then ->
-# 						new Promise (resolve, reject)->
-# 							tempArray = _.cloneDeep array
-# 							tempArray.splice(i, 1)
-# 							subCombinations =
-# 								setImmediate ->
-# 									await getAllCombinations(tempArray)
-# 									result.push _.map(subCombinations, (result)-> _.concat letter, result)...
-# 									console.log '> Got results:', result
-# 									resolve result
-# 			resultPromise = resultPromise.then (result)->
-# 				resolve result
-
-isWordInDictionary = (word, dictionary)->
-	new Promise (resolve, reject)->
-		if dictionary[word]?
-			console.log '>>>>>>>>>> Mot trouvé !'
-			resolve dictionary[word]
-		else
-			resolve()
-
-
 ((string)->
+	wordList = await getWordList()
+	dictionary = await getDictionary wordList
+	console.log 'Dictionary object is populated.'
 
-	wordArray = await getWordArray()
-	dictionary = await getDictionaryObject(wordArray)
-	console.log '>>> Dictionary object is populated, size is:', wordArray.length, 'entries'
+	sortedWord = sortLetters string
 
-	letterArray = getNormalizedLetterArray string
-	allCombinations = await getAllCombinations letterArray
-
-	console.log 'Number of combinations:', allCombinations.length
-	processAll = (combinations, dictObject)->
-		resultPromise = Promise.resolve()
-		foundWords = []
-		_.forEach combinations, (combination)->
-			word = combination.join ''
-			resultPromise = resultPromise.then ->
-				isWordInDictionary(word, dictObject).then (wordResult)->
-					if wordResult?
-						foundWords.push wordResult
-					foundWords
-
-		resultPromise = resultPromise.then (allResults)->
-			console.log '>>> Résultats:', (_.filter allResults, (result)-> not _.isEmpty result)...
-
-	# processChunk = (combinations, dictObject)->
-	# 	resultPromise = []
-	# 	_.forEach combinations, (combination)->
-	# 		word = combination.join ''
-	# 		resultPromise.push isWordInDictionary word, dictObject
-	#
-	# 	Promise.all(resultPromise).then (allResults)->
-	# 		console.log '>>> Résultats:', (_.filter allResults, (result)-> not _.isEmpty result)...
-	#
-	# processCombinations = (remainingCombinations, dictObject)->
-	# 	console.log '> Remaining cominations to process:', remainingCombinations.length
-	# 	if remainingCombinations.length < CHUNK_SIZE
-	# 		processChunk remainingCombinations, dictObject
-	# 	else
-	# 		combinationsChunk = remainingCombinations.splice 0, CHUNK_SIZE
-	# 		processChunk combinationsChunk, dictObject
-	# 		setImmediate (-> processCombinations(remainingCombinations, dictObject))
-
-	processAll allCombinations, dictionary
-
-
-) 'puraaplies'
+	result = dictionary[sortedWord]
+	console.log '>>> Result:', result
+) 'permanente'
