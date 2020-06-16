@@ -14,16 +14,13 @@ getWordList = ->
 
 getDictionary = (wordList)->
 	dictionary = {}
-	dictionaryPromise = Promise.resolve()
 	_.forEach wordList, (word)->
-		dictionaryPromise = dictionaryPromise.then ->
-			sortedWord = sortLetters word
-			if dictionary[sortedWord]?
-				dictionary[sortedWord].push word
-			else
-				dictionary[sortedWord] = [word]
-			dictionary
-	dictionaryPromise
+		sortedWord = sortLetters word
+		if dictionary[sortedWord]?
+			dictionary[sortedWord].push word
+		else
+			dictionary[sortedWord] = [word]
+	dictionary
 
 ((string)->
 	wordList = await getWordList()
