@@ -1,4 +1,4 @@
-module.exports = StringUtils =
+export default StringUtils =
 	removeAccents: (source)->
 		result = source
 		result = result.replace /[èéêëẽēĕėęěȅȇ]/ig, 'e'

@@ -1,0 +1,59 @@
+@mixin fillparent {
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	left: 0;
+}
+
+body {
+	@include fillparent;
+	background-color: aliceblue;
+	font-size: 30px;
+	font-family: arial;
+	margin: 0;
+}
+.appRegion {
+	@include fillparent;
+	padding: 1em;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	&.hidden {
+		display: none;
+	}
+}
+
+.title {
+	text-align: center;
+	font-weight: bold;
+	margin-bottom: 1em;
+}
+.input {
+	margin-bottom: 1em;
+	.inputField {
+		font-size: 30px;
+	}
+	.actionButton {
+		font-size: 30px;
+	}
+}
+.results {
+	flex: 1 0 auto;
+	display: flex;
+	align-items: baseline;
+	flex-wrap: wrap;
+	padding: 0 3em;
+	.subTitle {
+		font-weight: bold;
+		display: flex;
+		align-items: center;
+	}
+	.word {
+		background-color: lightgreen;
+		padding: .2em;
+		margin: .5em;
+		border-radius: 5px;
+	}
+}
