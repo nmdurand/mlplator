@@ -13,15 +13,11 @@ export default StringUtils =
 		result = result.replace /[œ]/ig, 'oe'
 		result
 
-	removeDashes: (source)->
-		result = source
-		result = result.replace /[-]/ig, ''
-
 	normalize: (source)->
 		result = source
 		result = result.trim().normalize()
-		result = result.replace /\s+/ig, ' '
 		result = result.toLowerCase()
 		result = StringUtils.removeAccents result
-		result = StringUtils.removeDashes result
+		# Make sure to keep only letters
+		result = result.replace /[^a-z]+/ig, ''
 		result
